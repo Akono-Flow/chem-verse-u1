@@ -161,7 +161,7 @@
           }
         },
         {
-          "question": "A mass of 25 g of an unknown gas, X, is pumped through an industrial pipeline of volume 60 cm³ at a pressure of 120 kPa and temperature of 150 °C. (Molar gas constant = 8.31 J K⁻¹ mol⁻¹.)\n\nWhat is the relative molecular mass of the gas?",
+          "question": "A mass of 25 g of an unknown gas, X, is pumped through an industrial pipeline of volume 60 dm³ at a pressure of 120 kPa and temperature of 150 °C. (Molar gas constant = 8.31 J K⁻¹ mol⁻¹.)\n\nWhat is the relative molecular mass of the gas?",
           "options": [
             "$1.2 \\times 10^{-2}$",
             "$4.3 \\times 10^{-2}$",
