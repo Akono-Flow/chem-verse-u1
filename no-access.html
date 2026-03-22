@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Restricted</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body {
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(20,184,166,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20,184,166,.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .container {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 460px;
+      padding: 1rem;
+      animation: fadeUp .5s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .lock-icon {
+      width: 64px; height: 64px;
+      background: rgba(239,68,68,.1);
+      border: 1px solid rgba(239,68,68,.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.75rem;
+      margin: 0 auto 1.5rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+    .card h2 {
+      font-family: var(--mono);
+      font-size: 1rem;
+      letter-spacing: .08em;
+      margin-bottom: .75rem;
+      color: var(--text);
+    }
+    .app-name {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: .8rem;
+      background: rgba(20,184,166,.08);
+      border: 1px solid rgba(20,184,166,.2);
+      color: var(--accent);
+      padding: .3rem .9rem;
+      border-radius: 999px;
+      margin-bottom: 1.25rem;
+    }
+    .card p {
+      color: var(--text-muted);
+      font-size: .9rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+    .reason-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      font-family: var(--mono);
+      font-size: .7rem;
+      color: var(--text-muted);
+      text-align: center;
+      letter-spacing: .04em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="lock-icon">🔒</div>
+      <h2>ACCESS RESTRICTED</h2>
+      <div class="app-name" id="app-name-badge">This App</div>
+      <p id="access-message">
+        Your current plan does not include access to this application.
+        Contact an administrator to upgrade your plan.
+      </p>
+      <div class="actions">
+        <button class="btn btn-ghost btn-full" onclick="history.back()">
+          ← Go Back
+        </button>
+        <button class="btn btn-ghost btn-full" onclick="signOut()">
+          Sign Out
+        </button>
+      </div>
+      <div class="reason-row" id="reason-row"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const reason = params.get('reason');
+    const appName = params.get('app');
+
+    if (appName) {
+      document.getElementById('app-name-badge').textContent = appName;
+      document.title = `Access Restricted — ${appName}`;
+    }
+
+    const messages = {
+      no_plan: 'Your account has not been assigned a subscription plan yet. Please contact an administrator.',
+      no_access: `Your current plan does not include access to this application. Contact an administrator to upgrade.`,
+      app_unavailable: 'This application is currently unavailable. Please try again later.',
+    };
+    if (reason && messages[reason]) {
+      document.getElementById('access-message').textContent = messages[reason];
+    }
+
+    const reasonLabels = {
+      no_plan: 'ERR_NO_PLAN_ASSIGNED',
+      no_access: 'ERR_PLAN_ACCESS_DENIED',
+      app_unavailable: 'ERR_APP_INACTIVE',
+    };
+    const row = document.getElementById('reason-row');
+    if (reason && reasonLabels[reason]) {
+      row.textContent = reasonLabels[reason];
+    }
+  </script>
+</body>
+</html>
