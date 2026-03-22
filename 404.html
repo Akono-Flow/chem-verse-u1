@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Page Not Found</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060a0f;
+      --accent: #14b8a6;
+      --accent2: #0d9488;
+      --dim: rgba(20,184,166,0.06);
+      --text: #e2e8f0;
+      --muted: #4a5568;
+      --mono: 'Space Mono', monospace;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+    }
+
+    canvas#bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* Vignette overlay */
+    .vignette {
+      position: fixed; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center,
+        transparent 30%,
+        rgba(6,10,15,0.6) 70%,
+        rgba(6,10,15,0.95) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Scanline texture */
+    .scanlines {
+      position: fixed; inset: 0; z-index: 2;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.03) 2px,
+        rgba(0,0,0,0.03) 4px
+      );
+      pointer-events: none;
+    }
+
+    .stage {
+      position: fixed; inset: 0; z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+      gap: 0;
+    }
+
+    /* Glitching 404 */
+    .four-oh-four {
+      position: relative;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: clamp(7rem, 22vw, 16rem);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(20,184,166,0.25);
+      user-select: none;
+      margin-bottom: 0.1em;
+    }
+
+    .four-oh-four .fill {
+      position: absolute; inset: 0;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      background: linear-gradient(135deg, #14b8a6 0%, #0d9488 40%, #0f766e 70%, #134e4a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 0.7; }
+      50%       { opacity: 1; }
+    }
+
+    /* Glitch slices */
+    .four-oh-four .glitch-a,
+    .four-oh-four .glitch-b {
+      position: absolute; inset: 0;
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: inherit;
+      line-height: inherit;
+      letter-spacing: inherit;
+      -webkit-text-stroke: 0;
+      overflow: hidden;
+    }
+    .four-oh-four .glitch-a {
+      color: rgba(20,184,166,0.35);
+      clip-path: polygon(0 20%, 100% 20%, 100% 40%, 0 40%);
+      animation: glitch-a 5s infinite;
+    }
+    .four-oh-four .glitch-b {
+      color: rgba(6,182,212,0.25);
+      clip-path: polygon(0 60%, 100% 60%, 100% 75%, 0 75%);
+      animation: glitch-b 7s infinite;
+    }
+
+    @keyframes glitch-a {
+      0%,90%,100% { transform: translateX(0); opacity:0; }
+      91%          { transform: translateX(-4px); opacity:1; }
+      93%          { transform: translateX(3px); opacity:1; }
+      95%          { transform: translateX(-2px); opacity:1; }
+      97%          { transform: translateX(0); opacity:0; }
+    }
+    @keyframes glitch-b {
+      0%,85%,100% { transform: translateX(0); opacity:0; }
+      86%          { transform: translateX(5px); opacity:1; }
+      88%          { transform: translateX(-3px); opacity:1; }
+      90%          { transform: translateX(0); opacity:0; }
+    }
+
+    /* Divider line */
+    .rule {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 1.5rem auto 1.75rem;
+      animation: pulse-line 3s ease-in-out infinite;
+    }
+    @keyframes pulse-line {
+      0%,100% { opacity:0.4; width:80px; }
+      50%      { opacity:1; width:140px; }
+    }
+
+    .headline {
+      font-family: var(--mono);
+      font-size: clamp(0.85rem, 2.5vw, 1rem);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.9rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.3s ease forwards;
+    }
+
+    .message {
+      font-family: var(--sans);
+      font-weight: 300;
+      font-size: clamp(0.9rem, 2vw, 1.1rem);
+      color: rgba(226,232,240,0.55);
+      max-width: 400px;
+      line-height: 1.75;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.5s ease forwards;
+    }
+
+    /* Code block style path */
+    .path-display {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: rgba(20,184,166,0.5);
+      background: rgba(20,184,166,0.04);
+      border: 1px solid rgba(20,184,166,0.12);
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.03em;
+      opacity: 0;
+      animation: fade-up 0.8s 0.65s ease forwards;
+    }
+    .path-display span { color: rgba(20,184,166,0.25); }
+
+    /* Home button */
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--mono);
+      font-size: 0.8125rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      color: #000;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 2rem;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      opacity: 0;
+      animation: fade-up 0.8s 0.8s ease forwards;
+    }
+    .home-btn:hover {
+      background: #0d9488;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(20,184,166,0.3);
+    }
+    .home-btn:active { transform: translateY(0); }
+
+    /* Arrow icon */
+    .arrow {
+      display: inline-block;
+      transition: transform 0.2s;
+    }
+    .home-btn:hover .arrow { transform: translateX(4px); }
+
+    /* Status line at bottom */
+    .status-bar {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 0; right: 0;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      color: rgba(20,184,166,0.2);
+      pointer-events: none;
+    }
+    .status-bar .dot {
+      display: inline-block;
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0.3;
+      margin-right: 0.4rem;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity:0.15; }
+      50%      { opacity:0.5; }
+    }
+
+    @keyframes fade-up {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .status-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="bg"></canvas>
+  <div class="vignette"></div>
+  <div class="scanlines"></div>
+
+  <div class="stage">
+
+    <div class="four-oh-four" aria-label="404">
+      404
+      <span class="fill" aria-hidden="true">404</span>
+      <span class="glitch-a" aria-hidden="true">404</span>
+      <span class="glitch-b" aria-hidden="true">404</span>
+    </div>
+
+    <div class="rule"></div>
+
+    <p class="headline">Signal Lost</p>
+
+    <p class="message">
+      The page you requested could not be located.<br>
+      It may have been moved, removed, or never existed.
+    </p>
+
+    <div class="path-display">
+      <span>GET </span><span id="req-path">/</span>
+      <span> → </span>404 Not Found
+    </div>
+
+    <a href="/" class="home-btn">
+      Return Home <span class="arrow">→</span>
+    </a>
+
+  </div>
+
+  <div class="status-bar">
+    <span><span class="dot"></span>HTTP 404</span>
+    <span><span class="dot" style="animation-delay:.4s"></span>ERR_NOT_FOUND</span>
+    <span><span class="dot" style="animation-delay:.8s"></span id="ts">--</span>
+  </div>
+
+  <script>
+    // ── Show the current path ──────────────────────────────────
+    document.getElementById('req-path').textContent = location.pathname || '/';
+    const ts = document.getElementById('ts');
+    if (ts) ts.textContent = new Date().toISOString().slice(11,19) + ' UTC';
+
+    // ── Particle field canvas ──────────────────────────────────
+    const canvas = document.getElementById('bg');
+    const ctx    = canvas.getContext('2d');
+
+    let W, H, particles = [], lines = [];
+    const ACCENT = '20,184,166';
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); init(); });
+
+    // Each particle is a drifting node in a network graph
+    function Particle() {
+      this.x   = Math.random() * W;
+      this.y   = Math.random() * H;
+      this.vx  = (Math.random() - 0.5) * 0.18;
+      this.vy  = (Math.random() - 0.5) * 0.18;
+      this.r   = Math.random() * 1.2 + 0.4;
+      this.a   = Math.random() * 0.5 + 0.1;
+      this.pulse = Math.random() * Math.PI * 2;
+      this.pulseSpeed = 0.01 + Math.random() * 0.015;
+    }
+
+    function init() {
+      const count = Math.floor((W * H) / 9000);
+      particles = Array.from({ length: Math.min(count, 90) }, () => new Particle());
+    }
+    init();
+
+    // Mouse parallax
+    let mx = W / 2, my = H / 2;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      frame++;
+
+      const mouseInfluence = 80;
+      const connectionDist  = 130;
+
+      // Update + draw particles
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+        p.pulse += p.pulseSpeed;
+
+        // Drift toward cursor very slightly
+        const dx = mx - p.x, dy = my - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < mouseInfluence) {
+          p.vx += (dx / dist) * 0.003;
+          p.vy += (dy / dist) * 0.003;
+        }
+
+        // Dampen velocity
+        p.vx *= 0.998;
+        p.vy *= 0.998;
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Wrap edges
+        if (p.x < -10) p.x = W + 10;
+        if (p.x > W+10) p.x = -10;
+        if (p.y < -10) p.y = H + 10;
+        if (p.y > H+10) p.y = -10;
+
+        // Pulsing opacity
+        const ao = p.a * (0.7 + 0.3 * Math.sin(p.pulse));
+
+        // Draw node
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${ACCENT},${ao})`;
+        ctx.fill();
+
+        // Draw connections to nearby particles
+        for (let j = i + 1; j < particles.length; j++) {
+          const q  = particles[j];
+          const ex = p.x - q.x, ey = p.y - q.y;
+          const ed = Math.sqrt(ex*ex + ey*ey);
+          if (ed < connectionDist) {
+            const alpha = (1 - ed / connectionDist) * 0.12;
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `rgba(${ACCENT},${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Subtle horizontal scan line that drifts down
+      const scanY = ((frame * 0.4) % (H + 60)) - 30;
+      const grad  = ctx.createLinearGradient(0, scanY - 30, 0, scanY + 30);
+      grad.addColorStop(0,   'rgba(20,184,166,0)');
+      grad.addColorStop(0.5, 'rgba(20,184,166,0.025)');
+      grad.addColorStop(1,   'rgba(20,184,166,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, scanY - 30, W, 60);
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+  </script>
+</body>
+</html>
