@@ -6,6 +6,9 @@
 <title>Chemistry Learning Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/mhchem.min.js"></script>
@@ -274,6 +277,11 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.85em;background:var(--bg3)
 </style>
 </head>
 <body>
+  <div id="page-loader" style="
+    position:fixed; inset:0; background:#080c10;
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; font-family:monospace; color:#14b8a6; font-size:1.2rem;
+  ">Checking access…</div>
 <header id="app-header">
   <div class="hdr-left">
     <div class="hdr-logo" onclick="goHome()">
