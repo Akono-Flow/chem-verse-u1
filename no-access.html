@@ -222,11 +222,10 @@ async function signOut() {
   if (typeof _scqSupabase !== 'undefined') {
     try { await _scqSupabase.auth.signOut(); } catch(_) {}
   }
-  localStorage.removeItem('scq_device_token');
   var base = (typeof AUTH_BASE_URL !== 'undefined') ? AUTH_BASE_URL.replace(/\/$/, '') : '';
   window.location.href = base ? base + '/index.html?reason=logged_out' : 'index.html?reason=logged_out';
 }
 </script>
-<script src="js/auth.js?v=4"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>
