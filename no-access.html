@@ -1,144 +1,232 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Access Restricted</title>
-  <link rel="stylesheet" href="css/style.css">
-  <style>
-    body {
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh;
-    }
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(20,184,166,.04) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(20,184,166,.04) 1px, transparent 1px);
-      background-size: 40px 40px;
-      pointer-events: none;
-    }
-    .container {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 460px;
-      padding: 1rem;
-      animation: fadeUp .5s ease;
-    }
-    @keyframes fadeUp {
-      from { opacity:0; transform:translateY(14px); }
-      to   { opacity:1; transform:translateY(0); }
-    }
-    .lock-icon {
-      width: 64px; height: 64px;
-      background: rgba(239,68,68,.1);
-      border: 1px solid rgba(239,68,68,.25);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.75rem;
-      margin: 0 auto 1.5rem;
-    }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 2.5rem 2rem;
-      text-align: center;
-    }
-    .card h2 {
-      font-family: var(--mono);
-      font-size: 1rem;
-      letter-spacing: .08em;
-      margin-bottom: .75rem;
-      color: var(--text);
-    }
-    .app-name {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: .8rem;
-      background: rgba(20,184,166,.08);
-      border: 1px solid rgba(20,184,166,.2);
-      color: var(--accent);
-      padding: .3rem .9rem;
-      border-radius: 999px;
-      margin-bottom: 1.25rem;
-    }
-    .card p {
-      color: var(--text-muted);
-      font-size: .9rem;
-      line-height: 1.7;
-      margin-bottom: 2rem;
-    }
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: .75rem;
-    }
-    .reason-row {
-      margin-top: 1.5rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
-      font-family: var(--mono);
-      font-size: .7rem;
-      color: var(--text-muted);
-      text-align: center;
-      letter-spacing: .04em;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Denied — SCQ Learning Portal</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="js/config.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg-0:#050911;--bg-2:#111827;--bg-3:#1a2236;
+  --border:#1e3a5f;
+  --accent:#2563eb;--accent-dim:rgba(37,99,235,.12);
+  --teal:#0891b2;--danger:#dc2626;--warning:#d97706;--success:#059669;
+  --t1:#f1f5f9;--t2:#94a3b8;--t3:#475569;
+  --r:10px;--r-lg:16px;
+  --font:'Segoe UI',system-ui,-apple-system,sans-serif
+}
+html,body{min-height:100%;font-family:var(--font);background:var(--bg-0);color:var(--t1)}
+body{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px 16px;
+  background-image:radial-gradient(ellipse 70% 50% at 50% 50%,rgba(220,38,38,.06) 0%,transparent 60%)
+}
+
+.wrap{width:100%;max-width:520px;text-align:center}
+
+/* ── Icon circle ── */
+.icon-ring{
+  width:100px;height:100px;border-radius:50%;margin:0 auto 24px;
+  display:flex;align-items:center;justify-content:center;font-size:2.8rem;
+  border:2px solid
+}
+.ring-warning{background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.4)}
+.ring-danger {background:rgba(220,38,38,.1);border-color:rgba(220,38,38,.4)}
+.ring-info   {background:var(--accent-dim);border-color:rgba(37,99,235,.4)}
+
+/* ── Content ── */
+.reason-code{
+  font-size:.7rem;font-family:'Cascadia Code','Fira Code',monospace;
+  color:var(--t3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px
+}
+.main-title{font-size:1.8rem;font-weight:800;color:var(--t1);letter-spacing:-.03em;margin-bottom:12px}
+.main-msg{font-size:.92rem;color:var(--t2);line-height:1.7;max-width:400px;margin:0 auto 28px}
+
+/* ── Detail box ── */
+.detail-box{
+  background:var(--bg-2);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;text-align:left;margin-bottom:28px
+}
+.detail-box h4{font-size:.8rem;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.detail-item{display:flex;gap:10px;font-size:.83rem;color:var(--t2);margin-bottom:8px;line-height:1.5}
+.detail-item:last-child{margin-bottom:0}
+.detail-icon{flex-shrink:0;margin-top:1px}
+
+/* ── Actions ── */
+.actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn{
+  display:inline-flex;align-items:center;gap:6px;padding:11px 22px;
+  border-radius:var(--r);font-size:.87rem;font-weight:600;font-family:var(--font);
+  cursor:pointer;text-decoration:none;transition:all .18s
+}
+.btn-primary{background:var(--accent);color:#fff;border:none}
+.btn-primary:hover{background:#1d4ed8;transform:translateY(-1px)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--t2);color:var(--t1)}
+.btn-danger{background:transparent;border:1px solid rgba(220,38,38,.4);color:#fca5a5}
+.btn-danger:hover{background:rgba(220,38,38,.1)}
+
+/* ── Footer ── */
+.footer{margin-top:40px;font-size:.73rem;color:var(--t3)}
+.footer a{color:var(--t2);text-decoration:none}
+.footer a:hover{color:var(--accent)}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <div class="lock-icon">🔒</div>
-      <h2>ACCESS RESTRICTED</h2>
-      <div class="app-name" id="app-name-badge">This App</div>
-      <p id="access-message">
-        Your current plan does not include access to this application.
-        Contact an administrator to upgrade your plan.
-      </p>
-      <div class="actions">
-        <button class="btn btn-ghost btn-full" onclick="history.back()">
-          ← Go Back
-        </button>
-        <button class="btn btn-ghost btn-full" onclick="signOut()">
-          Sign Out
-        </button>
-      </div>
-      <div class="reason-row" id="reason-row"></div>
-    </div>
+<div class="wrap">
+  <div class="icon-ring" id="icon-ring">🔒</div>
+  <div class="reason-code" id="reason-code">ACCESS DENIED</div>
+  <div class="main-title" id="main-title">Access Restricted</div>
+  <div class="main-msg" id="main-msg">You don't have permission to view this application.</div>
+
+  <div class="detail-box" id="detail-box">
+    <h4>What this means</h4>
+    <div id="detail-items"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script>
-    const params = new URLSearchParams(location.search);
-    const reason = params.get('reason');
-    const appName = params.get('app');
+  <div class="actions" id="actions"></div>
+</div>
 
-    if (appName) {
-      document.getElementById('app-name-badge').textContent = appName;
-      document.title = `Access Restricted — ${appName}`;
-    }
+<div class="footer" id="footer-info"></div>
 
-    const messages = {
-      no_plan: 'Your account has not been assigned a subscription plan yet. Please contact an administrator.',
-      no_access: `Your current plan does not include access to this application. Contact an administrator to upgrade.`,
-      app_unavailable: 'This application is currently unavailable. Please try again later.',
-    };
-    if (reason && messages[reason]) {
-      document.getElementById('access-message').textContent = messages[reason];
-    }
+<script>
+(function () {
+  var params  = new URLSearchParams(window.location.search);
+  var reason  = params.get('reason') || 'plan_denied';
 
-    const reasonLabels = {
-      no_plan: 'ERR_NO_PLAN_ASSIGNED',
-      no_access: 'ERR_PLAN_ACCESS_DENIED',
-      app_unavailable: 'ERR_APP_INACTIVE',
-    };
-    const row = document.getElementById('reason-row');
-    if (reason && reasonLabels[reason]) {
-      row.textContent = reasonLabels[reason];
+  // ── Apply branding ─────────────────────────────────────────────────────────
+  if (typeof PORTAL_CONFIG !== 'undefined') {
+    document.title = 'Access Denied — ' + PORTAL_CONFIG.institutionName;
+    document.getElementById('footer-info').innerHTML =
+      PORTAL_CONFIG.footerText + ' &mdash; Questions? ' +
+      '<a href="mailto:' + PORTAL_CONFIG.supportEmail + '">' + PORTAL_CONFIG.supportEmail + '</a>';
+  }
+
+  var base = (typeof AUTH_BASE_URL !== 'undefined') ? AUTH_BASE_URL.replace(/\/$/, '') : '';
+  var launcherUrl = base ? base + '/launcher.html' : 'launcher.html';
+  var loginUrl    = base ? base + '/index.html'    : 'index.html';
+
+  // ── Reason map ─────────────────────────────────────────────────────────────
+  var reasons = {
+    no_plan: {
+      icon: '📋', ringClass: 'ring-warning',
+      code: 'NO PLAN ASSIGNED',
+      title: 'No Plan Assigned',
+      msg: 'Your account is active but hasn\'t been assigned a subscription plan yet. Please contact your administrator.',
+      details: [
+        { ic: '🧑‍💼', txt: 'Your account has been approved and is active.' },
+        { ic: '📌', txt: 'A plan must be assigned before you can access any application.' },
+        { ic: '✉️', txt: 'Contact your administrator and ask them to assign a plan to your account.' },
+      ],
+      actions: [
+        { label: 'Back to Dashboard', href: launcherUrl, cls: 'btn-primary' },
+        { label: 'Sign Out', href: '#', cls: 'btn-ghost', fn: 'signOut()' },
+      ]
+    },
+    plan_denied: {
+      icon: '🔐', ringClass: 'ring-warning',
+      code: 'PLAN ACCESS DENIED',
+      title: 'App Not in Your Plan',
+      msg: 'Your current subscription plan does not include this application. Upgrade your plan or contact your administrator.',
+      details: [
+        { ic: '✅', txt: 'You are signed in and your account is active.' },
+        { ic: '📦', txt: 'Your plan does not include access to this specific application.' },
+        { ic: '⬆️', txt: 'Ask your administrator to add this app to your plan or upgrade your subscription.' },
+      ],
+      actions: [
+        { label: '← My Apps', href: launcherUrl, cls: 'btn-primary' },
+        { label: 'Sign Out',  href: '#',          cls: 'btn-ghost', fn: 'signOut()' },
+      ]
+    },
+    app_unavailable: {
+      icon: '🛠️', ringClass: 'ring-info',
+      code: 'APP UNAVAILABLE',
+      title: 'Application Unavailable',
+      msg: 'This application has been temporarily disabled by the administrator. Please check back later.',
+      details: [
+        { ic: '⚙️', txt: 'The application is currently undergoing maintenance or has been temporarily disabled.' },
+        { ic: '⏰', txt: 'This is usually a short-term change. Please try again later.' },
+        { ic: '✉️', txt: 'If you believe this is an error, contact your administrator.' },
+      ],
+      actions: [
+        { label: '← My Apps', href: launcherUrl, cls: 'btn-primary' },
+      ]
+    },
+    app_not_found: {
+      icon: '🔍', ringClass: 'ring-danger',
+      code: 'APP NOT REGISTERED',
+      title: 'Application Not Found',
+      msg: 'This application hasn\'t been registered in the access control system yet.',
+      details: [
+        { ic: '📋', txt: 'The application slug used in this app\'s code does not match any registered app in the portal.' },
+        { ic: '🛠️', txt: 'If you are the developer: register this app in the Admin Panel → Apps tab and ensure the slug matches exactly.' },
+      ],
+      actions: [
+        { label: '← My Apps', href: launcherUrl, cls: 'btn-primary' },
+      ]
+    },
+    user_inactive: {
+      icon: '⏳', ringClass: 'ring-warning',
+      code: 'ACCOUNT PENDING',
+      title: 'Account Pending Approval',
+      msg: 'Your account is awaiting administrator approval. You will be able to sign in once your account is activated.',
+      details: [
+        { ic: '📝', txt: 'Your registration has been received.' },
+        { ic: '🧑‍💼', txt: 'An administrator must manually approve your account before you can log in.' },
+        { ic: '📬', txt: 'This is usually done within 24 hours. Check your email for a notification.' },
+      ],
+      actions: [
+        { label: 'Back to Sign In', href: loginUrl, cls: 'btn-primary' },
+      ]
+    },
+    error: {
+      icon: '⚠️', ringClass: 'ring-danger',
+      code: 'ACCESS CHECK ERROR',
+      title: 'Something Went Wrong',
+      msg: 'An error occurred while verifying your access. This is usually a temporary issue.',
+      details: [
+        { ic: '🌐', txt: 'This may be a temporary network or server issue.' },
+        { ic: '🔄', txt: 'Try refreshing the page or signing in again.' },
+        { ic: '✉️', txt: 'If the problem persists, contact support.' },
+      ],
+      actions: [
+        { label: 'Try Again', href: 'javascript:history.back()', cls: 'btn-primary' },
+        { label: 'Sign In Again', href: loginUrl, cls: 'btn-ghost' },
+      ]
     }
-  </script>
+  };
+
+  var r = reasons[reason] || reasons['plan_denied'];
+
+  document.getElementById('icon-ring').innerHTML   = r.icon;
+  document.getElementById('icon-ring').className   = 'icon-ring ' + r.ringClass;
+  document.getElementById('reason-code').textContent = r.code;
+  document.getElementById('main-title').textContent   = r.title;
+  document.getElementById('main-msg').textContent     = r.msg;
+
+  document.getElementById('detail-items').innerHTML = r.details.map(function(d){
+    return '<div class="detail-item"><span class="detail-icon">' + d.ic + '</span><span>' + d.txt + '</span></div>';
+  }).join('');
+
+  document.getElementById('actions').innerHTML = r.actions.map(function(a){
+    if (a.fn) {
+      return '<button class="btn ' + a.cls + '" onclick="' + a.fn + '">' + a.label + '</button>';
+    }
+    return '<a class="btn ' + a.cls + '" href="' + a.href + '">' + a.label + '</a>';
+  }).join('');
+})();
+
+async function signOut() {
+  if (typeof _scqSupabase !== 'undefined') {
+    try { await _scqSupabase.auth.signOut(); } catch(_) {}
+  }
+  localStorage.removeItem('scq_device_token');
+  var base = (typeof AUTH_BASE_URL !== 'undefined') ? AUTH_BASE_URL.replace(/\/$/, '') : '';
+  window.location.href = base ? base + '/index.html?reason=logged_out' : 'index.html?reason=logged_out';
+}
+</script>
+<script src="js/auth.js"></script>
 </body>
 </html>
