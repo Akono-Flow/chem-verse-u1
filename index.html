@@ -279,10 +279,14 @@ code{font-family:'IBM Plex Mono',monospace;font-size:.85em;background:var(--bg3)
 </head>
 <body>
   <div id="page-loader" style="
-    position:fixed; inset:0; background:#080c10;
-    display:flex; align-items:center; justify-content:center;
-    z-index:9999; font-family:monospace; color:#14b8a6; font-size:1.2rem;
-  ">Checking access…</div>
+  position:fixed;inset:0;background:#050911;
+  display:flex;align-items:center;justify-content:center;
+  z-index:9999;font-family:monospace;color:#2563eb;font-size:1.1rem;
+  flex-direction:column;gap:12px;
+">
+  <span style="font-size:2rem">🔒</span>
+  Verifying access…
+</div>
 <header id="app-header">
   <div class="hdr-left">
     <div class="hdr-logo" onclick="goHome()">
@@ -2458,17 +2462,32 @@ function pad(n){return String(n).padStart(2,'0');}
 
 // Boot
 // document.addEventListener('DOMContentLoaded',init);
+//   document.addEventListener('DOMContentLoaded', async () => {
+
+//   const result = await requireAppAccess(
+//     'mcqu1',                                              // ← your app's slug from Step 1
+//     'https://quiz-bizz.learnwithcole.com/no-access.html' // ← never changes
+//   );
+//   if (!result) return;
+
+//   document.getElementById('page-loader').remove();
+
+//   await init(); // ← your existing init function name, unchanged
+
+// });
+
   document.addEventListener('DOMContentLoaded', async () => {
 
-  const result = await requireAppAccess(
-    'mcqu1',                                              // ← your app's slug from Step 1
-    'https://quiz-bizz.learnwithcole.com/no-access.html' // ← never changes
-  );
-  if (!result) return;
+  // ── Replace 'YOUR_SLUG_HERE' with the slug you register in Step 5 ──
+  const auth = await requireAppAccess('mcq1', 'no-access.html');
+  if (!auth) return;   // auth handles the redirect; just stop here
 
-  document.getElementById('page-loader').remove();
+  // Remove the loading overlay
+  const loader = document.getElementById('page-loader');
+  if (loader) loader.remove();
 
-  await init(); // ← your existing init function name, unchanged
+  // Call your original init function — completely unchanged
+  await init();   // ← replace init() with your actual function name
 
 });
 </script>
