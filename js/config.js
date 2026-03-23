@@ -1,15 +1,34 @@
-// ============================================================
-//  SUPABASE CONFIGURATION
-//  Replace these two values with your own from:
-//  Supabase Dashboard → Project → Settings → API
-// ============================================================
+// ─────────────────────────────────────────────────────────────────────────────
+// config.js — Portal Configuration
+//
+// SETUP INSTRUCTIONS:
+//   1. Replace SUPABASE_URL with your project URL
+//      → Supabase Dashboard → Settings → API → Project URL
+//   2. Replace SUPABASE_ANON_KEY with your anon/public key
+//      → Supabase Dashboard → Settings → API → anon public
+//   3. Replace AUTH_BASE_URL with the GitHub Pages URL of THIS auth repo
+//      → e.g. https://yourusername.github.io/auth-repo
+//      → If using a custom domain: https://portal.yourdomain.com
+//   4. Customise PORTAL_CONFIG with your institution name and details
+// ─────────────────────────────────────────────────────────────────────────────
 
-const SUPABASE_URL  = 'https://izknqxrlmwezbdaysqlb.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml6a25xeHJsbXdlemJkYXlzcWxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxNTU4ODMsImV4cCI6MjA4OTczMTg4M30.iIGXMfHaAj-L-r7Lj6nJVhhXA9u6UPWIHyjR5NLd9-o';
+// ── Supabase Connection ────────────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://pcyismgmyotxialalkro.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBjeWlzbWdteW90eGlhbGFsa3JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQyMjUxOTQsImV4cCI6MjA4OTgwMTE5NH0.GYyfNVAfGmsejI1MiWfCzZo2UJ-fa3f9zJbkwb0wWW4';
 
-// ============================================================
-//  APP CONFIGURATION
-// ============================================================
+// ── Auth Repo Base URL ─────────────────────────────────────────────────────────
+// The URL where index.html, launcher.html, and no-access.html live.
+// No trailing slash. Cross-repo apps use this to redirect to the login page.
+const AUTH_BASE_URL = 'https://akono-flow.github.io/akono-app-gate';
 
-const APP_NAME    = 'Quiz Bizz';          // Shown in headers & titles
-const ADMIN_EMAIL = 'colem3846@gmail.com'; // First admin email (set in SQL too)
+// ── Portal Branding ────────────────────────────────────────────────────────────
+const PORTAL_CONFIG = {
+  institutionName  : 'Akono Learning Portal',   // Full name shown in headings
+  institutionShort : 'AF',                    // Abbreviation shown in badges/nav
+  tagline          : 'Science & Competition Excellence',
+  supportEmail     : 'colem3846@gmail.com',
+  logoInitials     : 'AF',                    // 2–4 letters for the circular emblem
+  footerText       : 'Akono Flow Educational Technology Platform',
+  // Theme override (optional — leave as-is for the default academic blue)
+  accentColor      : '#2563eb',
+};
