@@ -77,11 +77,24 @@
 
   // ── getSession ─────────────────────────────────────────────────────────────
   async function _getSession() {
-    try {
-      var r = await _sb.auth.getSession();
-      return (r && r.data && r.data.session) ? r.data.session : null;
-    } catch (_) { return null; }
-  }
+  try {
+    var r = await _sb.auth.getSession();
+    if (r && r.data && r.data.session) return r.data.session;
+
+    // No session found — wait for URL hash to be processed (cross-subdomain launch)
+    return new Promise(function (resolve) {
+      var sub = _sb.auth.onAuthStateChange(function (event, session) {
+        sub.data.subscription.unsubscribe();
+        resolve(session || null);
+      });
+      // Timeout after 4 seconds to avoid hanging forever
+      setTimeout(function () {
+        try { sub.data.subscription.unsubscribe(); } catch (_) {}
+        resolve(null);
+      }, 4000);
+    });
+  } catch (_) { return null; }
+}
 
   // ── getProfile ─────────────────────────────────────────────────────────────
   async function _getProfile(uid) {
@@ -212,12 +225,16 @@
       return null;
     }
 
+     // App-level access check — admins bypass entirely
+    if (profile.role === 'admin') {
+      return { session: session, profile: profile };
+    }
+
     var status = _deviceStatus(profile);
     if (status === 'conflict') { await _ejectDevice('session_conflict'); return null; }
     if (status === 'fresh')    { await _registerDevice(session.user.id); }
     else                       { await _touch(session.user.id); }
 
-    // App-level access check
     var reason = 'plan_denied';
     try {
       var r = await _sb.rpc('check_app_access', { app_slug: slug });
@@ -253,8 +270,16 @@
    * Used by launcher.html to render the app grid.
    * @returns {Array<{id, name, slug, url, description, icon, is_active}>}
    */
-  global.getMyApps = async function () {
+   global.getMyApps = async function () {
     try {
+      var session = await _getSession();
+      if (session) {
+        var profile = await _getProfile(session.user.id);
+        if (profile && profile.role === 'admin') {
+          var r = await _sb.from('apps').select('*').eq('is_active', true);
+          return (r && r.data) ? r.data : [];
+        }
+      }
       var r = await _sb.rpc('get_my_apps');
       return (r && r.data) ? r.data : [];
     } catch (_) { return []; }
