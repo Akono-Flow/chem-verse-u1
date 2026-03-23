@@ -19,7 +19,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // ── Auth Repo Base URL ─────────────────────────────────────────────────────────
 // The URL where index.html, launcher.html, and no-access.html live.
 // No trailing slash. Cross-repo apps use this to redirect to the login page.
-const AUTH_BASE_URL = 'https://akono-flow.github.io/akono-app-gate';
+const AUTH_BASE_URL = 'https://akono-gate-flow.learnwithcole.com';
 
 // ── Portal Branding ────────────────────────────────────────────────────────────
 const PORTAL_CONFIG = {
